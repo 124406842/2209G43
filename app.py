@@ -69,6 +69,8 @@ def home():
                     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
                     width: 420px;
                     text-align: center;
+                    border: 2px solid #007bff;
+
                 }
                 h1 {
                     font-size: 24px;
