@@ -9,6 +9,8 @@ Each tool had its own role in the integration process and its own strengths and 
 
 ## Flask
 
+Flask handled merging joke data, images, and Supabase statistics into a single response.
+
 # Strengths
 - Very lightweight and easy to set up
 - Perfect for small integration projects
@@ -20,6 +22,7 @@ Each tool had its own role in the integration process and its own strengths and 
 - Requires manual setup for logging, error handling and configuration
 
 ## Supabase
+Supabase made it straightforward to compute statistics such as the most popular joke and per‑session joke counts.
 
 # Strengths
 - Very easy to create tables and manage data
@@ -33,6 +36,7 @@ Each tool had its own role in the integration process and its own strengths and 
 - Requires environment variables which can cause issues if misconfigured
 
 ## External Joke API
+Returned the jokes, including a setup and a punchline
 
 # Strengths
 - Simple JSON responses

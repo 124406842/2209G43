@@ -54,8 +54,12 @@ Simple, responsive card layout
 │   ├── toolchain-critique.md
 │   └── user-stories.md
 ├── static/
-├── templates/
-│   └── index.html
+├── icons
+│   └─.keep 
+|   |-default.png
+|   |-general.png
+|   |-knockknock.png
+|   |-programming.png
 ├── .env
 ├── .env.example
 ├── .gitignore
@@ -88,10 +92,11 @@ http://127.0.0.1:5000/
 # Environment variables
    - Create a .env file in the project root with:
 Variable	|   Description	   |          Example
-SUPABASE_URL	Supabase project URL	https://xyzcompany.supabase.co
-SUPABASE_KEY	Supabase service role or anon key	(keep secret, do not commit)
-EXTERNAL_API_URL	Secondary external API endpoint	https://jsonplaceholder.typicode.com/todos/1
-
+SUPABASE_URL	Supabase project URL	     https://xyzcompany.supabase.co
+SUPABASE_KEY	Supabase service role or anon key	
+EXTERNAL_API_URL	Secondary external API endpoint	  https://jsonplaceholder.typicode.com/todos/1
+A .env.example file is included to show the required structure.
+Copy it and rename it to `.env` before running the project.
 # Deployment
  - The application is deployed at:
 Production URL: https://<your-app-host>.com
