@@ -7,6 +7,8 @@ from collections import Counter
 from flask import Flask, jsonify, g, request, make_response
 from dotenv import load_dotenv
 
+
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -19,6 +21,15 @@ EXTERNAL_API_URL = os.getenv("EXTERNAL_API_URL", "https://jsonplaceholder.typico
 
 JOKES_API_URL = "https://official-joke-api.appspot.com/random_joke"
 JOKES_API_BASE = "https://official-joke-api.appspot.com/jokes"
+
+DEFAULT_IMAGE = "https://raw.githubusercontent.com/124406842/2209G43/main/static/icons/default.png"
+
+CATEGORY_IMAGES = {
+    "Random": "https://raw.githubusercontent.com/124406842/2209G43/main/static/icons/default.png",
+    "general": "https://raw.githubusercontent.com/124406842/2209G43/main/static/icons/general.png",
+    "programming": "https://raw.githubusercontent.com/124406842/2209G43/main/static/icons/programming.png",
+    "knock-knock": "https://raw.githubusercontent.com/124406842/2209G43/main/static/icons/knockknock.png"
+}
 
 logging.basicConfig(
     level=logging.INFO,
@@ -42,10 +53,10 @@ def after_request(response):
 
 @app.route("/")
 def home():
-    # simple session cookie for per-user history
     session_id = request.cookies.get("session_id")
     if not session_id:
         session_id = str(uuid.uuid4())
+
 
     html = """
     <html>
@@ -131,6 +142,8 @@ def home():
                 </select>
                 <button onclick="loadInfo()">Show</button>
 
+                <img id="jokeImage" src="" style="width:100%;max-height:250px;object-fit:contain;margin-top:15px;border-radius:10px;">
+
                 <p id="joke"></p>
                 <div id="history"></div>
             </div>
@@ -148,6 +161,7 @@ def home():
                     } else {
                         document.getElementById('joke').innerText =
                             data.setup + " — " + data.punchline;
+                        document.getElementById('jokeImage').src = data.image;
                     }
                 }
 
@@ -239,7 +253,7 @@ def home():
     """
 
     resp = make_response(html)
-    resp.set_cookie("session_id", session_id, max_age=60 * 60 * 24 * 30)  # 30 days
+    resp.set_cookie("session_id", session_id, max_age=60 * 60 * 24 * 30)
     return resp
 
 @app.route("/status")
@@ -315,7 +329,6 @@ def save_joke_to_history(joke_data):
             timeout=5
         )
     except requests.RequestException:
-        # for assignment purposes, we can ignore failures here
         pass
 
 @app.route("/joke")
@@ -330,10 +343,14 @@ def joke():
 
         save_joke_to_history(joke_data)
 
+        joke_type = joke_data.get("type")
+        image = CATEGORY_IMAGES.get(joke_type, DEFAULT_IMAGE)
+
         return jsonify({
             "setup": joke_data.get("setup"),
             "punchline": joke_data.get("punchline"),
-            "type": joke_data.get("type")
+            "type": joke_type,
+            "image": image
         }), 200
 
     except requests.RequestException as e:
@@ -361,14 +378,16 @@ def joke_by_category(category):
         if isinstance(joke_data, list) and joke_data:
             joke_data = joke_data[0]
 
-        # normalise type to the category we requested
         joke_data["type"] = category
         save_joke_to_history(joke_data)
+
+        image = CATEGORY_IMAGES.get(category, DEFAULT_IMAGE)
 
         return jsonify({
             "setup": joke_data.get("setup"),
             "punchline": joke_data.get("punchline"),
-            "type": joke_data.get("type")
+            "type": joke_data.get("type"),
+            "image": image
         }), 200
 
     except requests.RequestException as e:

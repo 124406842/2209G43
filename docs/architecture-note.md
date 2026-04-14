@@ -1,0 +1,89 @@
+### Architecture Note
+
+# Overview
+This application is a small integration system built using Flask, Supabase and an external public API.
+The aim of the application is to demonstrate how a backend service can coordinate multiple external systems, handle errors and expose consistent JSON endpoints.
+The architecture follows a simple request–response model with additional observability features such as request IDs and structured logging.
+
+### Components
+
+# Flask Application
+Flask acts as the main integration layer. It is responsible for:
+
+- Handling all incoming HTTP requests
+- Calling Supabase and the external API
+- Combining data into JSON responses
+- Logging request metadata
+- Returning HTML for the homepage
+
+# Supabase
+Supabase acts as the project’s database layer.
+The `joke_history` table stores:
+
+- session_id
+- setup
+- punchline
+- category
+- timestamp
+
+This allows the system to keep a history of jokes fetched by users.
+
+# External API
+The application integrates with the Official Joke API, which returns random jokes in JSON format.
+Flask retrieves:
+
+- setup
+- punchline
+- type
+
+The API is used in:
+
+- `/joke`
+- `/combined`
+
+## Data Flow
+
+# Homepage Flow
+1. The user opens the `/` route in their browser.
+2. The homepage loads a simple UI containing a dropdown menu with joke categories and a “Get Joke” button.
+3. The user selects a joke type.
+4. JavaScript sends a request to `/joke` with the selected category.
+5. Flask calls the external Joke API.
+6. Flask stores the returned joke in the `joke_history` table in Supabase.
+7. Flask returns the joke as JSON.
+8. The UI displays the joke setup and punchline.
+
+# Combined Endpoint Flow
+When the client calls `/combined`, Flask fetches:
+
+- A joke from the external API
+- Data from Supabase
+- Data from the secondary external API
+
+Flask merges all responses into one JSON object and returns it to the client.
+
+# Logging and Observability
+Every request triggers:
+
+- A unique request ID
+- Start and end timestamps
+- Duration calculation
+- Logging of request_id, path, status_code and duration in ms
+
+This supports debugging and traceability.
+
+# Why This Architecture Fits the Assignment
+- Integrates two external systems
+- Provides multiple JSON endpoints
+- Includes observability
+- Demonstrates error handling and retries
+- Uses environment variables
+- Includes a minimal UI with user interaction
+- Stores data in a properly secured Supabase table
+
+# Limitations
+- No authentication
+- Supabase policies are minimal
+- UI is basic
+- External API availability affects joke retrieval
+- No advanced querying or pagination
