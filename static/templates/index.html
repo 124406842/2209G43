@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Joke Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            width: 450px;
+            text-align: center;
+        }
+
+        img {
+            width: 100%;
+            max-height: 260px;
+            object-fit: contain;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        select, button {
+            padding: 10px;
+            margin: 8px 0;
+            width: 100%;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        #output {
+            margin-top: 20px;
+            font-size: 18px;
+            min-height: 60px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <img id="jokeImage" src="{{ default_image }}" alt="Joke Image">
+
+    <div id="output">Welcome! Choose a category or generate a random joke.</div>
+
+    <select id="categorySelect">
+        <option value="general">General</option>
+        <option value="programming">Programming</option>
+        <option value="knock-knock">Knock-Knock</option>
+    </select>
+
+    <button onclick="generateRandom()">Generate Random Joke</button>
+    <button onclick="generateCategory()">Generate Category Joke</button>
+    <button onclick="loadHistory()">My Joke History</button>
+    <button onclick="loadStats()">My Stats</button>
+    <button onclick="loadPopular()">Most Popular Category</button>
+</div>
+
+<script>
+    function generateRandom() {
+        fetch("/joke")
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("output").innerHTML =
+                    `<strong>${data.setup}</strong><br>${data.punchline}`;
+                document.getElementById("jokeImage").src = data.image;
+            });
+    }
+
+    function generateCategory() {
+        const cat = document.getElementById("categorySelect").value;
+        fetch(`/joke/${cat}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("output").innerHTML =
+                    `<strong>${data.setup}</strong><br>${data.punchline}`;
+                document.getElementById("jokeImage").src = data.image;
+            });
+    }
+
+    function loadHistory() {
+        fetch("/jokes/history")
+            .then(res => res.json())
+            .then(data => {
+                if (data.length === 0) {
+                    document.getElementById("output").innerHTML = "No history yet.";
+                    return;
+                }
+                let html = "<strong>Your Joke History:</strong><br><br>";
+                data.forEach(j => {
+                    html += `${j.setup} — <em>${j.punchline}</em> (${j.category})<br><br>`;
+                });
+                document.getElementById("output").innerHTML = html;
+            });
+    }
+
+    function loadStats() {
+        fetch("/stats/user")
+            .then(res => res.json())
+            .then(data => {
+                let html = `<strong>Total jokes:</strong> ${data.total_jokes}<br><br>`;
+                html += "<strong>Category breakdown:</strong><br>";
+                for (const [cat, count] of Object.entries(data.category_breakdown)) {
+                    html += `${cat}: ${count}<br>`;
+                }
+                document.getElementById("output").innerHTML = html;
+            });
+    }
+
+    function loadPopular() {
+        fetch("/stats/popular-category")
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("output").innerHTML =
+                    `<strong>Most popular category:</strong> ${data.popular_category}`;
+            });
+    }
+</script>
+
+</body>
+</html>
